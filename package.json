@@ -1,0 +1,16 @@
+{
+  "name": "monorepo",
+  "workspaces": [
+    "demo",
+    "react-ascii-text"
+  ],
+  "scripts": {
+    "demo": "npm run dev -w demo",
+    "demo-build": "npm run build -w demo",
+    "package": "npm run start -w react-ascii-text"
+  },
+  "private": true,
+  "dependencies": {
+    "resolve": "^1.22.4"
+  }
+}
