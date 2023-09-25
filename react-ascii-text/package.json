@@ -28,10 +28,7 @@
   ],
   "dependencies": {
     "figlet": "^1.6.0",
-    "process": "^0.11.10",
-    "react": "^18.0.0",
-    "require": "^2.4.20",
-    "resolve": "^1.22.4"
+    "react": "^18.0.0"
   },
   "author": "Samuel Weckström <samuel.weckstrom@gmail.com> (https://github.com/samuelweckstrom)",
   "license": "MIT",
