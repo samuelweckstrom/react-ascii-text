@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { deltaCorpsPriest1, useAsciiText } from "react-ascii-text";
 import "./styles.css";
 
 export function App() {
-  const texts = useMemo(() => ["REACT", "ASCII", "TEXT"], []);
+  const texts = ["REACT", "ASCII", "TEXT"];
   const [isPaused, setIsPaused] = useState(false);
 
   const asciiTextRef = useAsciiText({
