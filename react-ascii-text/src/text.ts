@@ -2,10 +2,10 @@ import figlet from "figlet";
 
 const DEFAULT_FONT = "Slant" as figlet.Fonts;
 
-export const createAsciiText = async (
+export async function createAsciiText(
   text: string | string[],
   font?: string
-): Promise<[string[]]> => {
+): Promise<[string[]]> {
   const fontImport: string = !font
     ? (await import("./fonts/Slant.js")).default
     : "";
@@ -34,4 +34,4 @@ export const createAsciiText = async (
   }
 
   return asciiText;
-};
+}
