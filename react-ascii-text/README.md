@@ -8,7 +8,7 @@
 
 This library provides a React hook to render or animate ASCII text art using Figlet fonts.
 
-[DEMO](https://codesandbox.io/s/intelligent-noyce-sxslz2?file=/src/App.js){:target="_blank"}
+[DEMO](https://codesandbox.io/s/intelligent-noyce-sxslz2?file=/src/App.js)
 
 ### Installation
 
