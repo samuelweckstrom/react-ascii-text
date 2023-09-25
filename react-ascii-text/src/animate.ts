@@ -1,7 +1,7 @@
 import type { AnimationDirection } from "./useAsciiText";
 
-const CHARACTER_SET = "+*/\\";
-const CHARACTER_SET_SPACED = " +  * / ";
+const CHARACTER_SET = "/*+#";
+const CHARACTER_SET_SPACED = "/ * + #";
 
 function replaceText(text: string, index: number, character: string): string {
   return (
@@ -17,9 +17,10 @@ function getRandomCharacter(characterSet: string): string {
 
 function createHorizontalAnimationFrames(
   asciiTextFrame: string[],
-  direction: AnimationDirection = "horizontal"
+  direction: AnimationDirection = "horizontal",
+  animationCharacters?: string
 ): [string[]] {
-  const newFrames2: [string[]] = [[...structuredClone(asciiTextFrame)]];
+  const newFrames: [string[]] = [[...structuredClone(asciiTextFrame)]];
   const frameStringLength =
     direction === "left" || direction === "right"
       ? asciiTextFrame[0].length
@@ -28,11 +29,11 @@ function createHorizontalAnimationFrames(
   Array.from({ length: frameStringLength }).forEach((_, index) => {
     const CENTER_Y = 1;
     if (index === 0) {
-      newFrames2.push(asciiTextFrame);
+      newFrames.push(asciiTextFrame);
       return;
     }
 
-    const newFrame = newFrames2[index].map((item, index, array) => {
+    const newFrame = newFrames[index].map((item, index, array) => {
       const firstCharIndex = item.search(/\S/);
       const lastCharIndex = item.search(/\S(?!.*\S)/);
       if (firstCharIndex !== -1 && lastCharIndex !== -1) {
@@ -45,7 +46,9 @@ function createHorizontalAnimationFrames(
         }
         if (lastCharIndex - firstCharIndex > 2) {
           if (direction === "left" || direction === "horizontal") {
-            const animationChar = getRandomCharacter(CHARACTER_SET);
+            const animationChar = getRandomCharacter(
+              animationCharacters || CHARACTER_SET
+            );
             array[index + animationCharCount] = replaceText(
               array[index + animationCharCount],
               firstCharIndex + 1,
@@ -53,7 +56,9 @@ function createHorizontalAnimationFrames(
             );
           }
           if (direction === "right" || direction === "horizontal") {
-            const animationChar = getRandomCharacter(CHARACTER_SET);
+            const animationChar = getRandomCharacter(
+              animationCharacters || CHARACTER_SET
+            );
             array[index + animationCharCount] = replaceText(
               array[index + animationCharCount],
               lastCharIndex - 1,
@@ -64,21 +69,9 @@ function createHorizontalAnimationFrames(
       }
       return item;
     });
-    newFrames2.push(newFrame);
+    newFrames.push(newFrame);
   });
-  return newFrames2;
-}
-
-function addFramePadding(frame: string[]): string[] {
-  const renderWidth = frame.reduce(
-    (result, item) => (item.length > result ? item.length : result),
-    0
-  );
-  const padding = Math.floor(renderWidth / 2);
-
-  return frame.map((item) =>
-    item.padStart(item.length + padding).padEnd(renderWidth + 2 * padding)
-  );
+  return newFrames;
 }
 
 function replaceNonWhitespaceWithRandom(
@@ -93,7 +86,8 @@ function replaceNonWhitespaceWithRandom(
 
 function createVerticalAnimationFrames(
   asciiTextFrame: string[],
-  animationDirection: AnimationDirection
+  animationDirection: AnimationDirection,
+  animationCharacters?: string
 ): [string[]] {
   return asciiTextFrame.reduce(
     (result, textLine, index) => {
@@ -115,7 +109,7 @@ function createVerticalAnimationFrames(
         if (prevFrame?.[index]) {
           prevFrame[index] = replaceNonWhitespaceWithRandom(
             prevFrame[index],
-            CHARACTER_SET_SPACED
+            animationCharacters || CHARACTER_SET_SPACED
           );
         }
         if (prevFrame?.[index - 1]) {
@@ -124,7 +118,7 @@ function createVerticalAnimationFrames(
         if (newFrame[index]) {
           newFrame[index] = replaceNonWhitespaceWithRandom(
             newFrame[index],
-            CHARACTER_SET
+            animationCharacters || CHARACTER_SET
           );
         }
       }
@@ -135,7 +129,7 @@ function createVerticalAnimationFrames(
         if (prevFrame?.[lastindex]) {
           prevFrame[lastindex] = replaceNonWhitespaceWithRandom(
             prevFrame[lastindex],
-            CHARACTER_SET_SPACED
+            animationCharacters || CHARACTER_SET_SPACED
           );
         }
         if (prevFrame?.[lastindex + 1]) {
@@ -144,7 +138,7 @@ function createVerticalAnimationFrames(
         if (newFrame?.[lastindex]) {
           newFrame[lastindex] = replaceNonWhitespaceWithRandom(
             newFrame[lastindex],
-            CHARACTER_SET
+            animationCharacters || CHARACTER_SET
           );
         }
       }
@@ -175,7 +169,7 @@ function createVerticalAnimationFrames(
         if (!hasChar) return result;
         nextFrame2[0] = replaceNonWhitespaceWithRandom(
           nextFrame2[0],
-          CHARACTER_SET_SPACED
+          animationCharacters || CHARACTER_SET_SPACED
         );
         result.push(nextFrame2);
         const nextFrame3 = [...nextFrame2];
@@ -183,7 +177,7 @@ function createVerticalAnimationFrames(
         if (!/\S/.test(nextFrame3[0])) return result;
         nextFrame3[0] = replaceNonWhitespaceWithRandom(
           nextFrame3[0],
-          CHARACTER_SET_SPACED
+          animationCharacters || CHARACTER_SET_SPACED
         );
         result.push(nextFrame3);
 
@@ -204,7 +198,8 @@ function createVerticalAnimationFrames(
 
 export async function createFrames(
   asciiText: string[],
-  direction?: AnimationDirection
+  direction?: AnimationDirection,
+  animationCharacters?: string
 ): Promise<[string[]]> {
   try {
     if (
@@ -212,14 +207,19 @@ export async function createFrames(
       direction === "up" ||
       direction === "vertical"
     ) {
-      const frames = createVerticalAnimationFrames(asciiText, direction);
+      const frames = createVerticalAnimationFrames(
+        asciiText,
+        direction,
+        animationCharacters
+      );
       const reverse = structuredClone(frames).reverse();
       const combined = reverse.concat(frames) as [string[]];
       return combined;
     }
     const horizontalFrames = createHorizontalAnimationFrames(
       asciiText,
-      direction
+      direction,
+      animationCharacters
     );
     const reversedFrames = structuredClone(horizontalFrames).reverse();
     const loop = reversedFrames.concat(horizontalFrames) as [string[]];

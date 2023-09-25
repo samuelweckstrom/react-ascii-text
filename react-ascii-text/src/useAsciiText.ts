@@ -12,6 +12,7 @@ export type AnimationDirection =
 
 type UseAsciiTextArgs = {
   animationDirection?: AnimationDirection;
+  animationCharacters?: string;
   animationInterval?: number;
   animationLoop?: boolean;
   animationLoopTimeout?: number;
@@ -36,6 +37,7 @@ type AnimationRef = {
 
 export function useAsciiText({
   animationDirection = "horizontal",
+  animationCharacters,
   animationInterval = 1000,
   animationLoop,
   animationSpeed = 20,
@@ -55,10 +57,14 @@ export function useAsciiText({
     timeoutId: 0,
   });
 
-  const createFrame = async (asciiTexts: [string[]]): Promise<[string[]][]> =>
+  const createFrame = async (
+    asciiTexts: [string[]],
+    animationCharacters?: string
+  ): Promise<[string[]][]> =>
     await Promise.all([
       ...asciiTexts.map(
-        async (asciiText) => await createFrames(asciiText, animationDirection)
+        async (asciiText) =>
+          await createFrames(asciiText, animationDirection, animationCharacters)
       ),
     ]);
 
@@ -128,7 +134,10 @@ export function useAsciiText({
       ) {
         outputRef.current.textContent = asciiText[0].join("\n");
       } else if (Array.isArray(text) && asciiText.length === text.length) {
-        animationRef.current.animations = await createFrame(asciiText);
+        animationRef.current.animations = await createFrame(
+          asciiText,
+          animationCharacters
+        );
         requestAnimationFrame(render);
       }
     } catch (error) {
