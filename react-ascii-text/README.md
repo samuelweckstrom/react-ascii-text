@@ -6,9 +6,9 @@
 
 ##
 
-This library provides a React hook to animate ASCII text transformations using Figlet fonts. Users can either display the generated ASCII text in the chosen Figlet font or animate a transition between multiple texts.
+This library provides a React hook to render or animate ASCII text art using Figlet fonts.
 
-[DEMO]()
+[DEMO](https://codesandbox.io/s/intelligent-noyce-sxslz2?file=/src/App.js)
 
 ### Installation
 
