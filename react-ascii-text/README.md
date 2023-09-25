@@ -1,7 +1,7 @@
 ## React ASCII Text
 
 <div align="center">
-  <video src='https://samuelweckstrom-github.s3.eu-central-1.amazonaws.com/react-ascii-text.mp4' width=480 loop autoplay></video>
+  <img src='https://samuelweckstrom-github.s3.eu-central-1.amazonaws.com/react-ascii-text.gif' />
 </div>
 
 ##

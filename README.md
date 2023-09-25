@@ -1,7 +1,7 @@
-## React ASCII Text 
+## React ASCII Text
 
 <div align="center">
-  <video src='https://samuelweckstrom-github.s3.eu-central-1.amazonaws.com/react-ascii-text.mp4' width=480 loop autoplay></video>
+  <img src='https://samuelweckstrom-github.s3.eu-central-1.amazonaws.com/react-ascii-text.gif' />
 </div>
 
 ##
@@ -32,7 +32,7 @@ etc.
 
 ### Render ASCII text
 
-Passing a single string will render the text in a Figlet font. 
+Passing a single string will render the text in a Figlet font.
 
 ```javascript
 import { useAsciiText, alligator } from 'react-ascii-text';
@@ -46,7 +46,6 @@ function MyComponent() {
   return <pre ref={asciiTextRef}></pre>;
 }
 ``````
-
 
 ### Animate ASCII text
 
