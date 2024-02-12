@@ -52,16 +52,18 @@ function MyComponent() {
 Pass an array of strings to animate a transition between them.
 
 ```javascript
-import { useAsciiText, deltaCorpsPriest1 } from 'react-ascii-text';
+import { useAsciiText, alligator } from 'react-ascii-text';
 
 function MyComponent() {
   const asciiTextRef = useAsciiText({
-    animationCharacters: "▒ ░ █",
+    animationCharacters: "▒░█",
+    animationCharacterSpacing: 1,
+    animationDelay: 2000,
     animationDirection: "down",
-    animationInterval: 1000,
+    animationInterval: 100,
     animationLoop: true,
-    animationSpeed: 20,
-    font: deltaCorpsPriest1,
+    animationSpeed: 30,
+    font: alligator,
     text: ["REACT", "ASCII", "TEXT"],
   });
 
@@ -72,13 +74,19 @@ function MyComponent() {
 ### Parameters
 
 - `animationDirection` (optional, default: "horizontal"): Specifies the direction of the text animation. Possible are "down", "up", "left", "right", "horizontal", and "vertical".
-- `animationCharacters` (optional, default: '/*+#'): Characters that replace the rendered text in the animation.
+- `animationCharacters` (optional, default: '0123456789'): Characters that replace the rendered text in the animation.
+- `animationCharacterSpacing` (optional, default: 1): The spacing between animation characters.
+- `animationDelay` (optional, default: 500): The delay before the animation starts in ms.
 - `animationInterval` (optional, default: 1000): The interval (in milliseconds) between animations.
+- `animationIteration` (optional, default: 1): The number of times the animation should repeat.
+- `animationLoop` (optional, default: true): Whether the animation should loop indefinitely.
 - `animationSpeed` (optional, default: 20): The speed of the animation, affecting how quickly frames transition.
-- `animationLoop` (optional, default: false): Whether the animation should loop.
+- `fadeInOnly` (optional, default: false): Whether the animation should only fade in.
+- `fadeOutOnly` (optional, default: false): Whether the animation should only fade out.
 - `font` (optional, default: Slant): The font to be used for rendering the ASCII text.
+- `isAnimated` (optional, default: true): Whether the text should be animated.
 - `isPaused` (optional, default: false): Determines whether the animation is initially paused.
-- `text`: The ASCII text to be animated. It can be a single string or an array of strings for multi-frame animations.
+- `text` (optional, default: ["React", "ASCII", "Text"]): The ASCII text to be animated. It can be a single string or an array of strings to transition animations between strings.
 
 ### License
 
