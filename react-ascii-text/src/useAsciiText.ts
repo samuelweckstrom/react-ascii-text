@@ -1,143 +1,227 @@
 import { useRef, useEffect, useCallback } from "react";
-import { createFrames } from "./animate";
+import { createFrames } from "./createFrames";
 import { createAsciiText } from "./text";
 
+const CHARACTER_SET = "/*+#";
+
 export type AnimationDirection =
-  | "down"
   | "up"
-  | "left"
   | "right"
+  | "down"
+  | "left"
   | "horizontal"
   | "vertical";
 
 type UseAsciiTextArgs = {
-  animationDirection?: AnimationDirection;
-  animationCharacters?: string;
-  animationInterval?: number;
-  animationLoop?: boolean;
-  animationLoopTimeout?: number;
-  animationSpeed?: number;
-  fadeIn?: boolean;
-  fadeOut?: boolean;
-  font?: string;
+  /**
+   * The text to be animated. Accepts a string or an array of strings. Default is ["React", "ASCII", "Text"].
+   */
   text: string | string[];
+  /**
+   * Characters used in the animation. Default is CHARACTER_SET.
+   */
+  animationCharacters?: string;
+  /**
+   * Spacing between animation characters. Default is 1.
+   */
+  animationCharacterSpacing?: number;
+  /**
+   * Delay before the animation starts in ms. Default is 500.
+   */
+  animationDelay?: number;
+  /**
+   * Direction of the animation. Default is "horizontal".
+   */
+  animationDirection?: AnimationDirection;
+  /**
+   * Interval between animations in ms. Default is 1000.
+   */
+  animationInterval?: number;
+  /**
+   * Number of times the animation should repeat. Default is 1.
+   */
+  animationIteration?: number;
+  /**
+   * Whether the animation should loop indefinitely. Default is true.
+   */
+  animationLoop?: boolean;
+  /**
+   * How fast the animation runs. Default is 20.
+   */
+  animationSpeed?: number;
+  /**
+   * Whether the animation should only fade in. Default is false.
+   */
+  fadeInOnly?: boolean;
+  /**
+   * Whether the animation should only fade out. Default is false.
+   */
+  fadeOutOnly?: boolean;
+  /**
+   * The font to use for the text. No default value.
+   */
+  font?: string;
+  /**
+   * Whether the text should be animated. Default is true.
+   */
+  isAnimated?: boolean;
+  /**
+   * Whether the animation is paused. Default is false.
+   */
   isPaused?: boolean;
 };
 
-type AnimationRef = {
-  frameId: number;
-  timeoutId: number;
-  isPaused: boolean;
+type renderRef = {
   animationFrameId: number;
-  animations: [string[]][] | null;
   animationIndex: number;
+  animationIterationCount: number;
+  animations: string[][][] | null;
+  frameId: number;
   frameIndex: number;
+  isPaused: boolean;
+  isTimeout: boolean;
   previousTimeStamp: number;
+  timeoutId: number;
 };
 
 export function useAsciiText({
+  animationCharacters = CHARACTER_SET,
+  animationCharacterSpacing = 1,
+  animationDelay = 500,
   animationDirection = "horizontal",
-  animationCharacters,
   animationInterval = 1000,
-  animationLoop,
+  animationIteration = 1,
+  animationLoop = true,
   animationSpeed = 20,
+  fadeInOnly = false,
+  fadeOutOnly = false,
   font,
-  isPaused,
-  text,
-}: UseAsciiTextArgs) {
+  isAnimated = true,
+  isPaused = false,
+  text = ["React", "ASCII", "Text"],
+}: UseAsciiTextArgs): React.MutableRefObject<HTMLPreElement | undefined> {
   const outputRef = useRef<HTMLPreElement>();
-  const animationRef = useRef<AnimationRef>({
+  const renderRef = useRef<renderRef>({
     animationFrameId: 0,
     animationIndex: 0,
+    animationIterationCount: 1,
     animations: null,
     frameId: 0,
     frameIndex: 0,
     isPaused: false,
+    isTimeout: false,
     previousTimeStamp: 0,
     timeoutId: 0,
   });
 
-  const createFrame = async (
-    asciiTexts: [string[]],
-    animationCharacters?: string
-  ): Promise<[string[]][]> =>
-    await Promise.all([
-      ...asciiTexts.map(
-        async (asciiText) =>
-          await createFrames(asciiText, animationDirection, animationCharacters)
-      ),
-    ]);
-
   const render = async (timeStamp: number) => {
-    if (animationRef.current.isPaused) {
-      return;
-    }
+    const { animations, isPaused, isTimeout, previousTimeStamp } =
+      renderRef.current;
 
-    if (timeStamp >= animationRef.current.previousTimeStamp + animationSpeed) {
-      animationRef.current.previousTimeStamp = timeStamp; // set timestamp
-      const { animations, animationIndex, frameIndex } = animationRef.current;
+    if (!outputRef.current || !animations?.length || isPaused || isTimeout)
+      return;
+
+    const elapsedTimeSinceLastRender = timeStamp - previousTimeStamp;
+
+    if (elapsedTimeSinceLastRender > animationSpeed) {
+      const {
+        animationIndex,
+        animationIterationCount,
+        animations,
+        frameId,
+        frameIndex,
+      } = renderRef.current;
+
       const frameData = animations?.[animationIndex];
 
-      if (!frameData) return;
-      if (outputRef.current) {
-        outputRef.current.textContent = frameData[frameIndex].join("\n");
-      }
+      if (!frameData || isTimeout) return;
 
-      if (frameIndex === Math.floor(frameData.length / 2)) {
-        await new Promise((resolve) => setTimeout(resolve, animationInterval));
-        if (animationIndex === animations?.length - 1 && !animationLoop) {
-          cancelAnimationFrame(animationRef.current.frameId);
-          return;
-        }
-      }
+      const isFirstFrame = frameIndex === 0;
+      const isLastFrame = frameIndex === frameData.length - 1;
+      const isLastAnimation = animationIndex === animations.length - 1;
+      outputRef.current.textContent = frameData[frameIndex].join("\n");
 
       if (
-        animations?.length === 1 ||
-        (!animationLoop && animationIndex === animations?.length)
+        !animationLoop &&
+        animationIterationCount === animationIteration &&
+        isLastAnimation &&
+        isLastFrame
       ) {
-        cancelAnimationFrame(animationRef.current.frameId);
+        cancelAnimationFrame(frameId);
         return;
       }
 
-      if (frameIndex === frameData.length - 1) {
-        animationRef.current.frameIndex = 0;
-        animationRef.current.animationIndex++;
+      renderRef.current.previousTimeStamp = timeStamp;
+
+      const isMidFrame = frameIndex === Math.floor(frameData.length / 2);
+      const isFadeIn = fadeInOnly || fadeOutOnly;
+
+      const delay = async (time: number) => {
+        await new Promise((resolve) => {
+          renderRef.current.isTimeout = true;
+          setTimeout(resolve, time);
+        });
+        renderRef.current.isTimeout = false;
+      };
+
+      if (isFadeIn && isLastFrame && animationDelay) {
+        await delay(animationDelay);
+      }
+
+      if (isFadeIn && isFirstFrame && animationInterval) {
+        await delay(animationInterval);
+      }
+
+      if (!isFadeIn && isMidFrame && animationDelay) {
+        await delay(animationDelay);
+      }
+
+      if (!isFadeIn && isLastFrame && animationInterval) {
+        await delay(animationInterval);
+      }
+
+      if (isLastFrame) {
+        // increment to next animation
+        renderRef.current.frameIndex = 0;
+        renderRef.current.animationIndex++;
+        renderRef.current.animationIterationCount++;
       } else {
-        animationRef.current.frameIndex++;
+        // increment frame
+        renderRef.current.frameIndex++;
       }
 
-      if (animationRef.current.animationIndex === animations.length) {
-        animationRef.current.animationIndex = 0;
+      if (
+        animationLoop &&
+        renderRef.current.animationIndex === animations.length
+      ) {
+        // loop from start
+        renderRef.current.animationIndex = 0;
       }
     }
-    animationRef.current.frameId = requestAnimationFrame(render);
+    renderRef.current.frameId = requestAnimationFrame(render);
   };
-
-  useEffect(() => {
-    if (isPaused) {
-      animationRef.current.isPaused = true;
-      cancelAnimationFrame(animationRef.current.frameId);
-    } else {
-      animationRef.current.isPaused = false;
-      requestAnimationFrame(render);
-    }
-  }, [isPaused, animationRef]);
 
   const init = useCallback(async () => {
     try {
       const asciiText = await createAsciiText(text, font);
-      if (
-        text.length &&
-        asciiText.length === 1 &&
-        asciiText[0].length &&
-        outputRef.current
-      ) {
+      if (!isAnimated && outputRef.current) {
         outputRef.current.textContent = asciiText[0].join("\n");
-      } else if (Array.isArray(text) && asciiText.length === text.length) {
-        animationRef.current.animations = await createFrame(
-          asciiText,
-          animationCharacters
-        );
+      } else if (
+        asciiText.length === (Array.isArray(text) ? text : [text]).length
+      ) {
+        renderRef.current.animations = await Promise.all([
+          ...asciiText.map(
+            async (text) =>
+              await createFrames({
+                asciiText: text,
+                animationDirection,
+                animationCharacters,
+                animationCharacterSpacing,
+                fadeInOnly,
+                fadeOutOnly,
+              })
+          ),
+        ]);
         requestAnimationFrame(render);
       }
     } catch (error) {
@@ -146,8 +230,18 @@ export function useAsciiText({
   }, []);
 
   useEffect(() => {
+    if (isPaused) {
+      renderRef.current.isPaused = true;
+      cancelAnimationFrame(renderRef.current.frameId);
+    } else {
+      renderRef.current.isPaused = false;
+      renderRef.current.frameId = requestAnimationFrame(render);
+    }
+  }, [isPaused, renderRef]);
+
+  useEffect(() => {
     init();
-  }, [text, init]);
+  }, [text]);
 
   return outputRef;
 }
