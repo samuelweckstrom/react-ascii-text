@@ -16,8 +16,8 @@
       "es2020",
       "DOM"
     ],
-    "module": "ES2022",
-    "moduleResolution": "classic",
+    "module": "esnext",
+    "moduleResolution": "Bundler",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,

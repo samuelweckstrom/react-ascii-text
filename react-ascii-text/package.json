@@ -1,15 +1,15 @@
 {
   "name": "react-ascii-text",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "React hook to render and animate ASCII text art",
   "main": "dist/index.js",
   "files": [
     "dist"
   ],
   "scripts": {
-    "start": "rm -rf ./dist && tsc --watch && npm run copyFonts",
-    "build": "rm -rf ./dist && tsc && npm run copyFonts",
-    "copyFonts": "mkdir dist/fonts && cp -a src/fonts/. dist/fonts"
+    "dev": "tsup --watch --onSuccess 'npm run copyFonts'",
+    "build": "npm run copyFonts && tsup",
+    "copyFonts": "rm -rf dist/fonts && mkdir dist/fonts && cp -a src/fonts/. dist/fonts"
   },
   "types": "./dist/index.d.ts",
   "typings": "./dist/index.d.ts",
@@ -18,6 +18,10 @@
     "url": "git+https://github.com/samuelweckstrom/react-ascii-text.git"
   },
   "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "keywords": [
     "react",
     "ascii",
@@ -27,17 +31,19 @@
     "hook"
   ],
   "dependencies": {
-    "figlet": "^1.6.0",
-    "react": "^18.0.0"
+    "figlet": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/figlet": "^1.5.6",
+    "@types/resolve": "^1.20.2"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0"
   },
   "author": "Samuel Weckström <samuel.weckstrom@gmail.com> (https://github.com/samuelweckstrom)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/samuelweckstrom/react-ascii-text/issues"
   },
-  "homepage": "https://github.com/samuelweckstrom/react-ascii-text#readme",
-  "devDependencies": {
-    "@types/figlet": "^1.5.6",
-    "@types/resolve": "^1.20.2"
-  }
+  "homepage": "https://github.com/samuelweckstrom/react-ascii-text#readme"
 }

@@ -3,18 +3,18 @@ import { deltaCorpsPriest1, useAsciiText } from "react-ascii-text";
 import "./styles.css";
 
 export function App() {
-  const texts = ["REACT", "ASCII", "TEXT"];
   const [isPaused, setIsPaused] = useState(false);
 
   const asciiTextRef = useAsciiText({
-    animationCharacters: "▒ ░ █",
+    animationCharacters: "▒░█",
+    animationCharacterSpacing: 1,
+    animationDelay: 2000,
     animationDirection: "down",
-    animationInterval: 1000,
+    animationInterval: 100,
     animationLoop: true,
-    animationSpeed: 20,
+    animationSpeed: 30,
     font: deltaCorpsPriest1,
-    text: texts,
-    isPaused,
+    text: ["REACT", "ASCII", "TEXT"],
   });
 
   return (
@@ -23,7 +23,7 @@ export function App() {
         <pre ref={asciiTextRef} />
       </div>
       <button onClick={() => setIsPaused(!isPaused)}>
-        {isPaused ? "play" : "pause"}{" "}
+        {isPaused ? "play" : "pause"}
       </button>
     </div>
   );
