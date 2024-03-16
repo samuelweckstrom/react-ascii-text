@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { deltaCorpsPriest1, useAsciiText } from "react-ascii-text";
-import "./styles.css";
+import { alligator, useAsciiText } from "react-ascii-text";
 
 export function App() {
+  const [text, setText] = useState(["REACT", "ASCII", "TEXT"]);
   const [isPaused, setIsPaused] = useState(false);
 
   const asciiTextRef = useAsciiText({
@@ -13,18 +13,42 @@ export function App() {
     animationInterval: 100,
     animationLoop: true,
     animationSpeed: 30,
-    font: deltaCorpsPriest1,
-    text: ["REACT", "ASCII", "TEXT"],
+    font: alligator,
+    isPaused,
+    text,
   });
 
+  let updatedText = [];
+  const handleChangeText = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const text = event.target.value.toUpperCase();
+    updatedText = text.split(/[\s,]+/);
+  };
+
+  const handleSetText = () => {
+    if (updatedText.length === 0) return;
+    setText(updatedText);
+  };
+
   return (
-    <div>
-      <div className="container">
-        <pre ref={asciiTextRef} />
+    <main className="container bg-inherit mx-2 my-8 flex flex-col">
+      <article className="text-s mx-auto text-center my-8">
+        <pre className="text-white w-full mx-auto" ref={asciiTextRef} />
+      </article>
+
+      <div className="flex flex-row">
+        <input
+          className="mr-2"
+          placeholder="Your text"
+          onChange={handleChangeText}
+          type="text"
+        />
+        <button onClick={handleSetText}>Change text</button>
       </div>
-      <button onClick={() => setIsPaused(!isPaused)}>
-        {isPaused ? "play" : "pause"}
-      </button>
-    </div>
+      <div className="my-2">
+        <button onClick={() => setIsPaused(!isPaused)}>
+          {isPaused ? "Play animation" : "Pause animation"}
+        </button>
+      </div>
+    </main>
   );
 }
