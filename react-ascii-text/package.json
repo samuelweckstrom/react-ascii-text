@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "dev": "tsup --watch --onSuccess 'npm run copyFonts'",
-    "build": "npm run copyFonts && tsup",
+    "build": "tsup && npm run copyFonts",
     "copyFonts": "rm -rf dist/fonts && mkdir dist/fonts && cp -a src/fonts/. dist/fonts"
   },
   "types": "./dist/index.d.ts",
