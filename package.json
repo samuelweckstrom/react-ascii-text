@@ -2,9 +2,10 @@
   "name": "monorepo",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "demo": "pnpm --filter demo dev",
-    "demo-build": "pnpm --filter demo build",
-    "package": "pnpm --filter react-ascii-text dev"
+    "build": "pnpm --filter react-ascii-text build",
+    "build:demo": "pnpm --filter demo build",
+    "dev": "pnpm --filter react-ascii-text dev",
+    "dev:demo": "pnpm --filter demo dev"
   },
   "private": true,
   "pnpm": {

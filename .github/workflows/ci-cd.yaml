@@ -25,7 +25,7 @@ jobs:
         run: pnpm build
 
       - name: Build demo
-        run: pnpm demo-build
+        run: pnpm build:demo
 
       # Upload artifact for GitHub Pages deployment
       - name: Upload Pages artifact
