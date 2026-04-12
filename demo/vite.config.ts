@@ -4,6 +4,9 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // GitHub Pages (and the S3 deployment) both serve from /react-ascii-text/.
+  // In dev mode the base stays at '/' so localhost works as normal.
+  base: process.env.NODE_ENV === 'production' ? '/react-ascii-text/' : '/',
   plugins: [react()],
   resolve: {
     alias: {

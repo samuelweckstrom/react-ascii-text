@@ -3,3 +3,4 @@ dist/
 .vscode
 to.do
 .DS_Store
+package-lock.json
