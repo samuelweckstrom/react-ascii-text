@@ -11,14 +11,18 @@ type CreateFrames = {
   fadeOutOnly: boolean;
 };
 
-export async function createFrames({
+function joinFrames(frames: string[][]): string[] {
+  return frames.map((frame) => frame.join("\n"));
+}
+
+export function createFrames({
   asciiText,
   animationDirection,
   animationCharacters,
   animationCharacterSpacing,
   fadeInOnly = false,
   fadeOutOnly = false,
-}: CreateFrames): Promise<string[][]> {
+}: CreateFrames): string[] {
   try {
     if (
       animationDirection === "down" ||
@@ -32,15 +36,15 @@ export async function createFrames({
         animationCharacterSpacing,
       });
 
-      if (fadeOutOnly) return verticalFrames;
+      if (fadeOutOnly) return joinFrames(verticalFrames);
 
-      const verticalFramesReversed = structuredClone(verticalFrames).reverse();
+      const verticalFramesReversed = verticalFrames.slice().reverse();
 
-      if (fadeInOnly) return verticalFramesReversed;
+      if (fadeInOnly) return joinFrames(verticalFramesReversed);
 
-      const verticalFramesLoop = verticalFramesReversed.concat(verticalFrames);
-      return verticalFramesLoop;
+      return joinFrames(verticalFramesReversed.concat(verticalFrames));
     }
+
     const horizontalFrames = createHorizontalAnimationFrames({
       asciiText,
       animationDirection,
@@ -48,17 +52,14 @@ export async function createFrames({
       animationCharacterSpacing,
     });
 
-    if (fadeInOnly) return structuredClone(horizontalFrames).reverse();
+    if (fadeInOnly) return joinFrames(horizontalFrames.slice().reverse());
 
-    const horizontalFramesReversed =
-      structuredClone(horizontalFrames).reverse();
+    const horizontalFramesReversed = horizontalFrames.slice().reverse();
 
-    if (fadeOutOnly) return horizontalFrames;
+    if (fadeOutOnly) return joinFrames(horizontalFrames);
 
-    const horizontalFramesLoop =
-      horizontalFramesReversed.concat(horizontalFrames);
-    return horizontalFramesLoop;
+    return joinFrames(horizontalFramesReversed.concat(horizontalFrames));
   } catch (error) {
-    throw error + " @createFrames";
+    throw new Error(`createFrames failed: ${error}`);
   }
 }
