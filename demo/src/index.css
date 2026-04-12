@@ -1,27 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-.grid-cols-custom {
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-html,
+html, body, #root {
+  height: 100%;
+}
+
 body {
-  font-size: 16px;
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: #222;
-}
-
-button {
-  min-width: 10rem;
-  padding: 0.25rem 1rem;
-  background-color: #fff;
-  border-radius: 0.5rem;
-}
-
-input {
-  padding: 0.25rem 1rem;
-  background-color: #fff;
-  border-radius: 0.5rem;
+  font-size: 14px;
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+  background-color: #0f0f0f;
+  color: #e0e0e0;
+  -webkit-font-smoothing: antialiased;
 }
