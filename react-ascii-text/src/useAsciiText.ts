@@ -1,4 +1,6 @@
-import { useRef, useEffect, useCallback } from "react";
+"use client";
+
+import { useRef, useEffect, useCallback, type RefObject } from "react";
 import { createFrames } from "./createFrames";
 import { createAsciiText } from "./text";
 
@@ -71,17 +73,27 @@ type UseAsciiTextArgs = {
   isPaused?: boolean;
 };
 
-type renderRef = {
+type RenderState = {
   animationFrameId: number;
   animationIndex: number;
   animationIterationCount: number;
-  animations: string[][][] | null;
+  animations: string[][] | null;
   frameId: number;
   frameIndex: number;
   isPaused: boolean;
   isTimeout: boolean;
   previousTimeStamp: number;
   timeoutId: number;
+};
+
+type AnimationOptions = {
+  animationDelay: number;
+  animationInterval: number;
+  animationIteration: number;
+  animationLoop: boolean;
+  animationSpeed: number;
+  fadeInOnly: boolean;
+  fadeOutOnly: boolean;
 };
 
 export function useAsciiText({
@@ -99,9 +111,9 @@ export function useAsciiText({
   isAnimated = true,
   isPaused = false,
   text = ["React", "ASCII", "Text"],
-}: UseAsciiTextArgs): React.MutableRefObject<HTMLPreElement | undefined> {
-  const outputRef = useRef<HTMLPreElement>();
-  const renderRef = useRef<renderRef>({
+}: UseAsciiTextArgs): RefObject<HTMLPreElement | null> {
+  const outputRef = useRef<HTMLPreElement | null>(null);
+  const renderStateRef = useRef<RenderState>({
     animationFrameId: 0,
     animationIndex: 0,
     animationIterationCount: 1,
@@ -114,32 +126,56 @@ export function useAsciiText({
     timeoutId: 0,
   });
 
-  const render = async (timeStamp: number) => {
+
+  const optionsRef = useRef<AnimationOptions>({
+    animationDelay,
+    animationInterval,
+    animationIteration,
+    animationLoop,
+    animationSpeed,
+    fadeInOnly,
+    fadeOutOnly,
+  });
+
+  optionsRef.current.animationDelay = animationDelay;
+  optionsRef.current.animationInterval = animationInterval;
+  optionsRef.current.animationIteration = animationIteration;
+  optionsRef.current.animationLoop = animationLoop;
+  optionsRef.current.animationSpeed = animationSpeed;
+  optionsRef.current.fadeInOnly = fadeInOnly;
+  optionsRef.current.fadeOutOnly = fadeOutOnly;
+
+  const render = useCallback(async (timeStamp: number) => {
     const { animations, isPaused, isTimeout, previousTimeStamp } =
-      renderRef.current;
+      renderStateRef.current;
 
     if (!outputRef.current || !animations?.length || isPaused || isTimeout)
       return;
 
+    const {
+      animationDelay,
+      animationInterval,
+      animationIteration,
+      animationLoop,
+      animationSpeed,
+      fadeInOnly,
+      fadeOutOnly,
+    } = optionsRef.current;
+
     const elapsedTimeSinceLastRender = timeStamp - previousTimeStamp;
 
     if (elapsedTimeSinceLastRender > animationSpeed) {
-      const {
-        animationIndex,
-        animationIterationCount,
-        animations,
-        frameId,
-        frameIndex,
-      } = renderRef.current;
+      const { animationIndex, animationIterationCount, frameId, frameIndex } =
+        renderStateRef.current;
 
-      const frameData = animations?.[animationIndex];
+      const frameData = animations[animationIndex];
 
       if (!frameData || isTimeout) return;
 
       const isFirstFrame = frameIndex === 0;
       const isLastFrame = frameIndex === frameData.length - 1;
       const isLastAnimation = animationIndex === animations.length - 1;
-      outputRef.current.textContent = frameData[frameIndex].join("\n");
+      outputRef.current.textContent = frameData[frameIndex];
 
       if (
         !animationLoop &&
@@ -151,97 +187,118 @@ export function useAsciiText({
         return;
       }
 
-      renderRef.current.previousTimeStamp = timeStamp;
+      renderStateRef.current.previousTimeStamp = timeStamp;
 
       const isMidFrame = frameIndex === Math.floor(frameData.length / 2);
-      const isFadeIn = fadeInOnly || fadeOutOnly;
+      const isFadeOnly = fadeInOnly || fadeOutOnly;
 
       const delay = async (time: number) => {
-        await new Promise((resolve) => {
-          renderRef.current.isTimeout = true;
-          setTimeout(resolve, time);
+        await new Promise<void>((resolve) => {
+          renderStateRef.current.isTimeout = true;
+          renderStateRef.current.timeoutId = window.setTimeout(resolve, time);
         });
-        renderRef.current.isTimeout = false;
+        renderStateRef.current.isTimeout = false;
       };
 
-      if (isFadeIn && isLastFrame && animationDelay) {
+      if (isFadeOnly && isLastFrame && animationDelay) {
         await delay(animationDelay);
       }
-
-      if (isFadeIn && isFirstFrame && animationInterval) {
+      if (isFadeOnly && isFirstFrame && animationInterval) {
         await delay(animationInterval);
       }
-
-      if (!isFadeIn && isMidFrame && animationDelay) {
+      if (!isFadeOnly && isMidFrame && animationDelay) {
         await delay(animationDelay);
       }
-
-      if (!isFadeIn && isLastFrame && animationInterval) {
+      if (!isFadeOnly && isLastFrame && animationInterval) {
         await delay(animationInterval);
       }
 
       if (isLastFrame) {
-        // increment to next animation
-        renderRef.current.frameIndex = 0;
-        renderRef.current.animationIndex++;
-        renderRef.current.animationIterationCount++;
+        renderStateRef.current.frameIndex = 0;
+        renderStateRef.current.animationIndex++;
+        renderStateRef.current.animationIterationCount++;
       } else {
-        // increment frame
-        renderRef.current.frameIndex++;
+        renderStateRef.current.frameIndex++;
       }
 
       if (
         animationLoop &&
-        renderRef.current.animationIndex === animations.length
+        renderStateRef.current.animationIndex === animations.length
       ) {
-        // loop from start
-        renderRef.current.animationIndex = 0;
+        renderStateRef.current.animationIndex = 0;
       }
     }
-    renderRef.current.frameId = requestAnimationFrame(render);
-  };
+    renderStateRef.current.frameId = requestAnimationFrame(render);
+  }, []);
 
   const init = useCallback(async () => {
     try {
+      if (renderStateRef.current.frameId) {
+        cancelAnimationFrame(renderStateRef.current.frameId);
+      }
+
+      renderStateRef.current.animationIndex = 0;
+      renderStateRef.current.animationIterationCount = 1;
+      renderStateRef.current.frameIndex = 0;
+      renderStateRef.current.isTimeout = false;
+      renderStateRef.current.previousTimeStamp = 0;
+
       const asciiText = await createAsciiText(text, font);
+
       if (!isAnimated && outputRef.current) {
         outputRef.current.textContent = asciiText[0].join("\n");
       } else if (
         asciiText.length === (Array.isArray(text) ? text : [text]).length
       ) {
-        renderRef.current.animations = await Promise.all([
-          ...asciiText.map(
-            async (text) =>
-              await createFrames({
-                asciiText: text,
-                animationDirection,
-                animationCharacters,
-                animationCharacterSpacing,
-                fadeInOnly,
-                fadeOutOnly,
-              })
-          ),
-        ]);
-        requestAnimationFrame(render);
+        renderStateRef.current.animations = asciiText.map((textLines) =>
+          createFrames({
+            asciiText: textLines,
+            animationDirection,
+            animationCharacters,
+            animationCharacterSpacing,
+            fadeInOnly,
+            fadeOutOnly,
+          })
+        );
+        renderStateRef.current.frameId = requestAnimationFrame(render);
       }
     } catch (error) {
-      console.error({ error });
+      console.error(error);
     }
-  }, []);
+  }, [
+    text,
+    font,
+    isAnimated,
+    animationDirection,
+    animationCharacters,
+    animationCharacterSpacing,
+    animationIteration,
+    animationLoop,
+    fadeInOnly,
+    fadeOutOnly,
+  ]);
 
   useEffect(() => {
-    if (isPaused) {
-      renderRef.current.isPaused = true;
-      cancelAnimationFrame(renderRef.current.frameId);
-    } else {
-      renderRef.current.isPaused = false;
-      renderRef.current.frameId = requestAnimationFrame(render);
+    if (isPaused && renderStateRef.current.frameId) {
+      renderStateRef.current.isPaused = true;
+      cancelAnimationFrame(renderStateRef.current.frameId);
+    } else if (!isPaused && renderStateRef.current.isPaused) {
+      renderStateRef.current.isPaused = false;
+      renderStateRef.current.frameId = requestAnimationFrame(render);
     }
-  }, [isPaused, renderRef]);
+  }, [isPaused]);
 
   useEffect(() => {
     init();
-  }, [text]);
+    return () => {
+      if (renderStateRef.current.frameId) {
+        cancelAnimationFrame(renderStateRef.current.frameId);
+      }
+      if (renderStateRef.current.timeoutId) {
+        clearTimeout(renderStateRef.current.timeoutId);
+      }
+    };
+  }, [init]);
 
   return outputRef;
 }

@@ -9,13 +9,15 @@ type CreateHorizontalAnimationFrames = {
 };
 
 const CENTER_Y = 1;
+const RE_FIRST_NON_WS = /\S/;
+const RE_LAST_NON_WS = /\S(?!.*\S)/;
 
 export function createHorizontalAnimationFrames({
   asciiText,
   animationDirection,
   animationCharacters,
 }: CreateHorizontalAnimationFrames): string[][] {
-  const newFrames: string[][] = [[...structuredClone(asciiText)]];
+  const newFrames: string[][] = [[...asciiText]];
   const frameStringLength =
     asciiText[0].length /
     (animationDirection === "left" || animationDirection === "right" ? 1 : 2);
@@ -27,8 +29,8 @@ export function createHorizontalAnimationFrames({
     }
 
     const newFrame = newFrames[index].map((item, index, array) => {
-      const firstCharIndex = item.search(/\S/);
-      const lastCharIndex = item.search(/\S(?!.*\S)/);
+      const firstCharIndex = item.search(RE_FIRST_NON_WS);
+      const lastCharIndex = item.search(RE_LAST_NON_WS);
       if (firstCharIndex === -1 || lastCharIndex === -1) return item;
 
       const animationCharacterOffset = index > CENTER_Y ? -1 : 1;

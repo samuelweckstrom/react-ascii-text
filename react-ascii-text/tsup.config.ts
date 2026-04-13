@@ -7,7 +7,7 @@ export default defineConfig({
   clean: true,
   dts: true,
   splitting: false,
-  format: ["esm"],
+  format: ["esm", "cjs"],
   external: ["react"],
   injectStyle: false,
   skipNodeModulesBundle: true,

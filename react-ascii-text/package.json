@@ -2,7 +2,8 @@
   "name": "react-ascii-text",
   "version": "0.0.4",
   "description": "React hook to render and animate ASCII text art",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "files": [
     "dist"
   ],
@@ -20,7 +21,11 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
   },
   "keywords": [
     "react",
@@ -31,11 +36,12 @@
     "hook"
   ],
   "dependencies": {
-    "figlet": "^1.6.0"
+    "figlet": "^1.11.0"
   },
   "devDependencies": {
-    "@types/figlet": "^1.5.6",
-    "@types/resolve": "^1.20.2"
+    "@types/figlet": "^1.7.0",
+    "@types/react": "^19.2.14",
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "react": ">=17.0.0"
