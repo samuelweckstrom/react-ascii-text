@@ -8,7 +8,7 @@
 
 This library provides a React hook to render or animate ASCII text art using Figlet fonts. Works with React 17 +, including Next.js App Router (the `"use client"` directive is already included in the package).
 
-[DEMO](https://samuel.weckstrom.xyz/react-ascii-text)
+[DEMO](https://samuel.weckstrom.dev/react-ascii-text)
 [Try the code out on StackBlitz](https://stackblitz.com/~/github.com/samuelweckstrom/react-ascii-text)
 
 ### Installation
