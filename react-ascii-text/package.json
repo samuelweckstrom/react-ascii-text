@@ -33,7 +33,17 @@
     "text",
     "art",
     "figlet",
-    "hook"
+    "hook",
+    "animation",
+    "font",
+    "banner",
+    "heading",
+    "hero",
+    "terminal",
+    "cli",
+    "retro",
+    "next.js",
+    "typescript"
   ],
   "dependencies": {
     "figlet": "^1.11.0"

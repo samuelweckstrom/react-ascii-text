@@ -74,6 +74,7 @@ function MyComponent() {
 
   return <pre ref={asciiTextRef}></pre>;
 }
+```
 
 ### Parameters
 
