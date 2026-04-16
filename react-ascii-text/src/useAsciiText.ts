@@ -14,7 +14,7 @@ export type AnimationDirection =
   | "horizontal"
   | "vertical";
 
-type UseAsciiTextArgs = {
+export type UseAsciiTextArgs = {
   /**
    * The text to be animated. Accepts a string or an array of strings. Default is ["React", "ASCII", "Text"].
    */
@@ -96,6 +96,44 @@ type AnimationOptions = {
   fadeOutOnly: boolean;
 };
 
+/**
+ * React hook that renders or animates ASCII text art using Figlet fonts.
+ * Attach the returned ref to a `<pre>` element.
+ *
+ * @example
+ * // Static render
+ * import { useAsciiText, alligator } from 'react-ascii-text';
+ *
+ * function Hero() {
+ *   const ref = useAsciiText({ font: alligator, text: "Hello" });
+ *   return <pre ref={ref} />;
+ * }
+ *
+ * @example
+ * // Animated loop between multiple strings
+ * import { useAsciiText, alligator } from 'react-ascii-text';
+ *
+ * function AnimatedHero() {
+ *   const ref = useAsciiText({
+ *     font: alligator,
+ *     text: ["REACT", "ASCII", "TEXT"],
+ *     animationDirection: "down",
+ *     animationCharacters: "▒░█",
+ *     animationSpeed: 30,
+ *     animationLoop: true,
+ *   });
+ *   return <pre ref={ref} />;
+ * }
+ *
+ * @example
+ * // Pause / resume control
+ * import { useAsciiText, slant } from 'react-ascii-text';
+ *
+ * function PausableHero({ paused }: { paused: boolean }) {
+ *   const ref = useAsciiText({ font: slant, text: ["A", "B"], isPaused: paused });
+ *   return <pre ref={ref} />;
+ * }
+ */
 export function useAsciiText({
   animationCharacters = CHARACTER_SET,
   animationCharacterSpacing = 1,
@@ -286,7 +324,7 @@ export function useAsciiText({
       renderStateRef.current.isPaused = false;
       renderStateRef.current.frameId = requestAnimationFrame(render);
     }
-  }, [isPaused]);
+  }, [isPaused, render]);
 
   useEffect(() => {
     init();
