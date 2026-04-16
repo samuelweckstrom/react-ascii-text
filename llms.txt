@@ -1,0 +1,129 @@
+# react-ascii-text
+
+> React hook to render and animate ASCII text art using Figlet fonts. Works with React 17+, including Next.js App Router (`"use client"` is already set inside the package).
+
+## Installation
+
+```
+npm install react-ascii-text
+```
+
+## Core API
+
+### `useAsciiText(args: UseAsciiTextArgs): RefObject<HTMLPreElement>`
+
+Returns a ref to attach to a `<pre>` element. Renders or animates ASCII art.
+
+Pass a **single string** for a static render; pass an **array of strings** to animate transitions between them.
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `text` | `string \| string[]` | `["React","ASCII","Text"]` | Text to render. Array triggers animation. |
+| `font` | `string` | Slant | Figlet font data (import from `react-ascii-text`). |
+| `isAnimated` | `boolean` | `true` | Set `false` for a static render. |
+| `isPaused` | `boolean` | `false` | Reactive — pause/resume the animation. |
+| `animationCharacters` | `string` | `"/*+#"` | Characters used during the transition effect. |
+| `animationCharacterSpacing` | `number` | `1` | Spacing between animation characters. |
+| `animationDelay` | `number` | `500` | Pause in ms at the midpoint of each transition. |
+| `animationDirection` | `AnimationDirection` | `"horizontal"` | `"up"`, `"down"`, `"left"`, `"right"`, `"horizontal"`, `"vertical"`. |
+| `animationInterval` | `number` | `1000` | Gap in ms between consecutive animations. |
+| `animationIteration` | `number` | `1` | How many times to repeat (ignored when `animationLoop` is `true`). |
+| `animationLoop` | `boolean` | `true` | Loop indefinitely. |
+| `animationSpeed` | `number` | `20` | Frame throttle in ms — lower = faster. |
+| `fadeInOnly` | `boolean` | `false` | Only play the reveal half of the animation. |
+| `fadeOutOnly` | `boolean` | `false` | Only play the hide half of the animation. |
+
+#### Types
+
+```typescript
+import type { UseAsciiTextArgs, AnimationDirection } from 'react-ascii-text';
+```
+
+## Fonts
+
+328 Figlet fonts are bundled. Import them by their camelCase name:
+
+```typescript
+import { alligator, slant, threeD, bigMoneySw } from 'react-ascii-text';
+```
+
+Font names follow this conversion rule: spaces and hyphens are removed and the result is camelCased. For example, `"Big Money-sw"` → `bigMoneySw`, `"3-D"` → `threeD`, `"5 Line Oblique"` → `fiveLineOblique`.
+
+Full font list and interactive preview: https://patorjk.com/software/taag/
+
+## Usage Examples
+
+### Static render
+
+```tsx
+import { useAsciiText, alligator } from 'react-ascii-text';
+
+function Hero() {
+  const ref = useAsciiText({ font: alligator, text: "Hello, World!" });
+  return <pre ref={ref} />;
+}
+```
+
+### Animated loop
+
+```tsx
+import { useAsciiText, alligator } from 'react-ascii-text';
+
+function AnimatedHero() {
+  const ref = useAsciiText({
+    font: alligator,
+    text: ["REACT", "ASCII", "TEXT"],
+    animationDirection: "down",
+    animationCharacters: "▒░█",
+    animationCharacterSpacing: 1,
+    animationDelay: 2000,
+    animationInterval: 100,
+    animationLoop: true,
+    animationSpeed: 30,
+  });
+  return <pre ref={ref} />;
+}
+```
+
+### Pause / resume
+
+```tsx
+import { useAsciiText, slant } from 'react-ascii-text';
+
+function PausableHero({ paused }: { paused: boolean }) {
+  const ref = useAsciiText({
+    font: slant,
+    text: ["A", "B", "C"],
+    isPaused: paused,
+  });
+  return <pre ref={ref} />;
+}
+```
+
+### Static text (no animation)
+
+```tsx
+import { useAsciiText, doom } from 'react-ascii-text';
+
+function StaticBanner() {
+  const ref = useAsciiText({ font: doom, text: "DOOM", isAnimated: false });
+  return <pre ref={ref} />;
+}
+```
+
+## Notes for AI agents
+
+- Always attach the returned ref to a `<pre>` element, not a `<div>` or any other element.
+- Fonts must be imported from `react-ascii-text` and passed as the `font` prop — do not pass a font name string.
+- The package already includes `"use client"` so it is safe to use in Next.js App Router without adding the directive yourself.
+- Tree-shaking is supported: only the font modules you import will be included in the bundle.
+- The hook is browser-only (uses `requestAnimationFrame`). SSR renders nothing until the client hydrates.
+
+## Links
+
+- npm: https://www.npmjs.com/package/react-ascii-text
+- GitHub: https://github.com/samuelweckstrom/react-ascii-text
+- Demo: https://samuel.weckstrom.dev/react-ascii-text
+- StackBlitz: https://stackblitz.com/~/github.com/samuelweckstrom/react-ascii-text
